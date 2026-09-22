@@ -8,9 +8,13 @@ Built around **Cyberpunk 2077**, but the pipeline works for any Steam App ID.
 
 ## Overview
 
-Steam reviews are messy: informal language, slang, sarcasm, and BBCode markup. This project turns that raw text into structured, queryable sentiment data — both **overall** sentiment per review and **aspect-based** sentiment (performance, story, gameplay, price, graphics) — so you can answer questions like *"what do people actually think of the game's performance vs. its story?"*
+Steam publishes a public review API for every game it sells. This project pulls every English-language review for Cyberpunk 2077, scores each one for sentiment (both overall and per-aspect — performance, story, gameplay, price, graphics), and surfaces the results as a dashboard: what people talk about, how they feel about it, and how that's shifted over time.
 
-The pipeline runs unattended on a schedule, only pulling new reviews each time, and logs every run for debugging.
+The pipeline is incremental — after the first full historical pull, later runs
+only fetch reviews posted since the last run, rather than re-fetching everything
+from scratch.
+
+---
 
 ## Pipeline Architecture
 
@@ -89,6 +93,46 @@ GROUP BY aspect;
    ```bash
    python Run_Pipeline.py
    ```
+
+## Running It
+
+**First run** (full historical pull — this takes a while given Cyberpunk's review volume):
+```
+python Run_Pipeline.py
+```
+
+**Later runs** (incremental — only pulls new reviews since last time):
+```
+python Run_Pipeline.py
+```
+Same command either way — `Extract.py` checks `extract_state.json` automatically and decides which mode to run in.
+
+**Scheduled runs**: point Windows Task Scheduler at `Run_Pipeline.py` to run automatically (daily is reasonable for this review volume). Check `pipeline_log.txt` afterward to confirm a scheduled run succeeded.
+
+---
+
+
+## Data Model
+
+Two tables, related by `review_id`, not one wide table:
+
+- **`reviews`** — one row per review: text, overall sentiment, verified-purchase flag, playtime, recommendation status.
+- **`review_aspects`** — one row per (review, aspect) *actually mentioned* — long format rather than 10 wide `mentions_X`/`X_sentiment` columns. Adding a 6th aspect later means new rows, not a schema change.
+
+Power BI imports these as two related tables (not the flattened view) to avoid a join fan-out that would silently bias review-level averages toward reviews that happen to mention more aspects.
+
+---
+
+
+## Key Design Decisions
+
+- **VADER before a transformer model**: fast enough to score the entire dataset on a CPU in seconds, and validated against Steam's own `voted_up` flag before trusting it. A transformer (RoBERTa via Hugging Face) is a documented possible upgrade, not a requirement to ship a working pipeline.
+- **Aspect-based, not just overall, sentiment**: scores only the sentences that mention a given aspect, rather than reusing the whole-review score five times.
+- **Incremental extraction**: Steam's `filter=recent` returns reviews newest-first, so a later run can stop as soon as it reaches a review it's already captured, instead of re-pulling the full history every time.
+- **SQL Server over SQLite for Load**: real `BIT` types instead of faked integers, and actually-enforced foreign keys (drop/load order matters here in a way it didn't with SQLite).
+
+---
+
 
 ## Automation
 
