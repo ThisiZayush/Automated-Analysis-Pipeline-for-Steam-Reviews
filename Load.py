@@ -7,7 +7,7 @@ from sqlalchemy import create_engine, text
 SCORED_FILE = "Sentiment_Score_File.csv"
 
 # SQL Server connection settings
-SERVER_NAME = "BAT-COMPUTER"                    # Name of the server(incase of local use "localhost")
+SERVER_NAME = "YOUR SERVER NAME"                # Name of the server(incase of local use "localhost")
 DATABASE_NAME = "SteamReviewsAnalysis"          # Name of the database in which we want to load the data (Create this in advance)
 ODBC_DRIVER = "ODBC Driver 17 for SQL Server"   # check the "ODBC Data Sources (64-bit)" app on Windows if unsure which you have
 
