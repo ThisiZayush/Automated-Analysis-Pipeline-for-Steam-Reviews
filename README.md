@@ -120,6 +120,7 @@ Two tables, related by `review_id`, not one wide table:
 - **`review_aspects`** — one row per (review, aspect) *actually mentioned* — long format rather than 10 wide `mentions_X`/`X_sentiment` columns. Adding a 6th aspect later means new rows, not a schema change.
 
 Power BI imports these as two related tables (not the flattened view) to avoid a join fan-out that would silently bias review-level averages toward reviews that happen to mention more aspects.
+
 <img width="967" height="541" alt="Dashboard" src="https://github.com/user-attachments/assets/b67dd7db-1886-4e14-ba4a-9c07e52661e7" />
 
 ---
