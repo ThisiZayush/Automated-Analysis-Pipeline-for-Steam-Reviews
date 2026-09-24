@@ -121,8 +121,6 @@ Two tables, related by `review_id`, not one wide table:
 
 Power BI imports these as two related tables (not the flattened view) to avoid a join fan-out that would silently bias review-level averages toward reviews that happen to mention more aspects.
 
-<img width="967" height="541" alt="Dashboard" src="https://github.com/user-attachments/assets/b67dd7db-1886-4e14-ba4a-9c07e52661e7" />
-
 ---
 
 
@@ -143,6 +141,9 @@ Power BI imports these as two related tables (not the flattened view) to avoid a
 ## Dashboard
 
 Sentiment results are connected to **Power BI** via a direct SQL Server connection, with visuals for sentiment trends over time, aspect-by-aspect comparison, and agreement between VADER's read and the reviewer's own thumbs-up/down vote.
+
+
+<img width="967" height="541" alt="Dashboard" src="https://github.com/user-attachments/assets/b67dd7db-1886-4e14-ba4a-9c07e52661e7" />
 
 ## License
 
